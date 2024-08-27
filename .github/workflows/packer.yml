@@ -7,18 +7,48 @@ env:
   PRODUCT_VERSION: "latest"
 
 jobs:
-  packer:
+  #   packer:
+  #     runs-on: ubuntu-latest
+  #     name: Run Packer
+  #     steps:
+  #       - name: Checkout
+  #         uses: actions/checkout@v4
+
+  #       - name: Setup `packer`
+  #         uses: hashicorp/setup-packer@v2
+  #         id: setup
+  #         with:
+  #           version: ${{ env.PRODUCT_VERSION }}
+
+  #       - name: Run `packer init`
+  #         id: init
+  #         run: "packer init ."
+
+  #       - name: Run `packer validate`
+  #         id: validate
+  #         run: "packer validate ."
+
+  # - name: Run `packer build`
+  #   id: build
+  #   run: "packer build -force ."
+  #   env:
+  #     ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+  #     ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+  #     ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+  #     ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
+
+  container-test-job:
     runs-on: ubuntu-latest
-    name: Run Packer
+    container:
+      image: davodgd/custom-packer:latest
+      env:
+        ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup `packer`
-        uses: hashicorp/setup-packer@v2
-        id: setup
-        with:
-          version: ${{ env.PRODUCT_VERSION }}
 
       - name: Run `packer init`
         id: init
@@ -31,8 +61,3 @@ jobs:
       - name: Run `packer build`
         id: build
         run: "packer build -force ."
-        env:
-          ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
