@@ -50,7 +50,7 @@ source "azure-arm" "ubuntu" {
 
   // Output settings
   managed_image_name                = "my-custom-ubuntu-image"
-  managed_image_resource_group_name = "custom-image-rg"
+  managed_image_resource_group_name = "packer-demo"
 }
 
 build {
