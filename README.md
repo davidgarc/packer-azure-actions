@@ -1,6 +1,6 @@
 # Azure Custom Image Builder with Packer
 
-This project demonstrates how to use HashiCorp Packer to build custom VM images in Microsoft Azure. It includes a Packer template for creating an Ubuntu-based image with custom configurations.
+This project demonstrates how to use HashiCorp Packer to build custom VM images in Microsoft Azure. It includes a Packer template for creating an Ubuntu-based image with custom configurations. It publishes the image to a shared image gallery.
 
 ## Prerequisites
 
@@ -8,6 +8,7 @@ This project demonstrates how to use HashiCorp Packer to build custom VM images 
 - Azure CLI installed and configured
 - HashiCorp Packer installed
 - GitHub account (for GitHub Actions)
+- Run terraform project first to setup all the required resources in Azure: https://github.com/davidgarc/tf-azure-shared-image-gallery
 
 ## Project Structure
 
@@ -25,6 +26,21 @@ This project demonstrates how to use HashiCorp Packer to build custom VM images 
    - `TENANT_ID`: Your Azure Tenant ID
 
 ## Usage
+
+### GitHub Actions
+
+The included GitHub Actions workflow will automatically build the image when changes are pushed to the repository. This project now uses OpenID Connect (OIDC) for authentication with Azure in the GitHub Actions workflow. This method is more secure than using long-lived credentials.
+
+To set up OIDC authentication, please follow the instructions in the project:
+https://github.com/davidgarc/tf-azure-github-actions
+
+After setting up OIDC authentication, update your GitHub repository secrets under the `Prod` environment:
+- Update or add the following secrets:
+  - `AZURE_CLIENT_ID`: The Client ID of your app registration
+  - `AZURE_SUBSCRIPTION_ID`: Your Azure Subscription ID
+  - `AZURE_TENANT_ID`: Your Azure Tenant ID
+
+The GitHub Actions workflow will now use these secrets to authenticate with Azure using OIDC. This eliminates the need for storing sensitive client secrets in your GitHub repository.
 
 ### Local Build
 
@@ -44,9 +60,9 @@ To build the image locally:
    packer build .
    ```
 
-### GitHub Actions
+### Versioning
 
-The included GitHub Actions workflow will automatically build the image when changes are pushed to the repository. Ensure you've set up the required secrets in your GitHub repository settings.
+The versioning is managed by the `image_version` variable in the `image.pkr.hcl` file. Modify this value to update the version of the image.
 
 ## Customization
 
@@ -54,6 +70,16 @@ Modify the `image.pkr.hcl` file to customize the image build process, including:
 - Changing the base image
 - Adding more provisioners to install software or configure the system
 - Adjusting Azure-specific settings like location or VM size
+
+## Output
+
+After successfully running the Packer build process, you should see output similar to the following:
+
+![Packer Build Output](img/packer-build-sig-publish.png)
+
+This image shows the successful completion of the Packer build process, including the creation and registration of the custom image in the Azure Shared Image Gallery.
+
+Note: The actual output may vary slightly depending on your specific configuration and any customizations you've made to the build process.
 
 ## License
 

@@ -7,35 +7,13 @@ packer {
   }
 }
 
-variable "client_id" {
+variable "subscription-id" {
   type = string
-  default = env("ARM_CLIENT_ID")
-}
-
-variable "client_secret" {
-  type = string
-  default = env("ARM_CLIENT_SECRET")
-}
-
-variable "subscription_id" {
-  type = string
-  default = env("ARM_SUBSCRIPTION_ID")
-}
-
-variable "tenant_id" {
-  type = string
-  default = env("ARM_TENANT_ID")
+  default = env("SUBSCRIPTION_ID")
 }
 
 source "azure-arm" "ubuntu" {
-  cloud_environment_name = "Public" # China, Germany, or USGovernment
-
-  location = "South Central US"
-
-  client_id = var.client_id
-  client_secret = var.client_secret
-  subscription_id = var.subscription_id
-  tenant_id = var.tenant_id
+  use_azure_cli_auth = true
 
   // Specify the Marketplace image you want to use
   image_publisher = "Canonical"
@@ -49,8 +27,20 @@ source "azure-arm" "ubuntu" {
   os_type = "Linux" // or "Windows"
 
   // Output settings
-  managed_image_name                = "my-custom-ubuntu-image"
-  managed_image_resource_group_name = "packer-demo"
+  // managed_image_name = "my-custom-ubuntu-image"
+  // managed_image_resource_group_name = "packer-demo"
+
+  # use existing resource group where the pipeline has access to do all the actions
+  build_resource_group_name         = "packer-demo"
+  
+  shared_image_gallery_destination {
+    subscription = var.subscription-id
+    resource_group = "packer-demo"
+    gallery_name = "packer_demo_gallery"
+    
+    image_name = "my-linux-image"
+    image_version = "1.1.0"
+  }
 }
 
 build {
